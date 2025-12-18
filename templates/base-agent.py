@@ -19,13 +19,10 @@ sqs = boto3.client('sqs', region_name='us-west-2')
 dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 config_table = dynamodb.Table('agent-configurations')
 
+# Tools will be injected here by the build system
 
-agent = Agent(
-    model=MODEL_ID,
-    temperature=TEMPERATURE,
-    max_tokens=MAX_TOKENS,
-    system_prompt=SYSTEM_PROMPT
-)
+# Initialize agent with configuration
+agent = Agent(model=MODEL_ID, system_prompt=SYSTEM_PROMPT)
 
 def send_usage_to_sqs(input_tokens, output_tokens, total_tokens, user_message, response_message, tenant_id):
     """Send token usage metrics to SQS for tracking and billing"""
