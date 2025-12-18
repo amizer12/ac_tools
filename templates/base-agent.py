@@ -19,10 +19,7 @@ sqs = boto3.client('sqs', region_name='us-west-2')
 dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
 config_table = dynamodb.Table('agent-configurations')
 
-# Tools will be injected here by the build system
-# The system looks for "agent = Agent(" and injects tools before it
 
-# Initialize agent with configuration
 agent = Agent(
     model=MODEL_ID,
     temperature=TEMPERATURE,
