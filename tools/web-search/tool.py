@@ -1,11 +1,6 @@
 from strands import tool
+from ddgs import DDGS
 
-try:
-    # Try new package name first
-    from ddgs import DDGS
-except ImportError:
-    # Fall back to old package name for compatibility
-    from duckduckgo_search import DDGS
 
 @tool
 def web_search(query: str, max_results: int = 5) -> str:
