@@ -1,6 +1,11 @@
 from strands import tool
-import requests
-from bs4 import BeautifulSoup
+
+try:
+    # Try new package name first
+    from ddgs import DDGS
+except ImportError:
+    # Fall back to old package name for compatibility
+    from duckduckgo_search import DDGS
 
 @tool
 def web_search(query: str, max_results: int = 5) -> str:
@@ -8,61 +13,55 @@ def web_search(query: str, max_results: int = 5) -> str:
     Search the web for information using DuckDuckGo.
     
     This tool allows the agent to search the internet and retrieve
-    relevant information to answer user questions.
+    relevant information to answer user questions. It uses the official
+    duckduckgo-search library for reliable and fast results.
     
     Args:
         query: The search query string
-        max_results: Maximum number of results to return (default: 5)
+        max_results: Maximum number of results to return (default: 5, max: 10)
         
     Returns:
-        Formatted search results as a string
+        Formatted search results as a string with titles, snippets, and URLs
         
     Example:
         result = web_search("Python programming tutorials", max_results=3)
+        result = web_search("latest AI news")
     """
     try:
-        # Use DuckDuckGo HTML search (no API key required)
-        search_url = f"https://html.duckduckgo.com/html/?q={requests.utils.quote(query)}"
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+        # Limit max_results to reasonable range
+        max_results = min(max(1, max_results), 10)
         
-        response = requests.get(search_url, headers=headers, timeout=10)
-        response.raise_for_status()
+        # Initialize DuckDuckGo search
+        with DDGS() as ddgs:
+            # Perform text search
+            results = list(ddgs.text(query, max_results=max_results))
         
-        # Parse HTML results
-        soup = BeautifulSoup(response.text, 'html.parser')
-        results = []
-        
-        # Find result divs
-        result_divs = soup.find_all('div', class_='result')[:max_results]
-        
-        for idx, result_div in enumerate(result_divs, 1):
-            # Extract title
-            title_elem = result_div.find('a', class_='result__a')
-            # Extract snippet
-            snippet_elem = result_div.find('a', class_='result__snippet')
-            
-            if title_elem and snippet_elem:
-                title = title_elem.get_text(strip=True)
-                snippet = snippet_elem.get_text(strip=True)
-                url = title_elem.get('href', '')
-                
-                # Format result
-                result_text = f"{idx}. **{title}**\n"
-                result_text += f"   {snippet}\n"
-                result_text += f"   URL: {url}\n"
-                results.append(result_text)
-        
-        if results:
-            header = f"Found {len(results)} results for '{query}':\n\n"
-            return header + "\n".join(results)
-        else:
+        if not results:
             return f"No results found for query: '{query}'"
+        
+        # Format results
+        formatted_results = []
+        for idx, result in enumerate(results, 1):
+            title = result.get('title', 'No title')
+            body = result.get('body', 'No description available')
+            url = result.get('href', '')
             
-    except requests.exceptions.Timeout:
-        return f"Search timed out for query: '{query}'. Please try again."
-    except requests.exceptions.RequestException as e:
-        return f"Error performing web search: {str(e)}"
+            result_text = f"{idx}. **{title}**\n"
+            result_text += f"   {body}\n"
+            if url:
+                result_text += f"   URL: {url}\n"
+            
+            formatted_results.append(result_text)
+        
+        header = f"Found {len(results)} results for '{query}':\n\n"
+        return header + "\n".join(formatted_results)
+        
     except Exception as e:
-        return f"Unexpected error during web search: {str(e)}"
+        error_msg = str(e)
+        # Provide helpful error messages
+        if "ratelimit" in error_msg.lower():
+            return f"Search rate limit reached. Please try again in a moment."
+        elif "timeout" in error_msg.lower():
+            return f"Search timed out for query: '{query}'. Please try again."
+        else:
+            return f"Error performing web search: {error_msg}"
