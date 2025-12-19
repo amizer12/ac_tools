@@ -4,7 +4,7 @@
   "description": "Search the web using DuckDuckGo (ddgs library)",
   "category": "information",
   "version": "2.0.0",
-  "dependencies": ["duckduckgo-search"],
+  "dependencies": ["ddgs"],
   "parameters": {
     "max_results": {
       "type": "integer",
