@@ -23,6 +23,16 @@
       "version": "1.0.0"
     },
     {
+      "id": "datetime",
+      "name": "Date & Time",
+      "description": "Get current date, time, and timezone information",
+      "category": "utility",
+      "icon": "🕐",
+      "path": "tools/datetime/tool.py",
+      "configPath": "tools/datetime/config.json",
+      "version": "1.0.0"
+    },
+    {
       "id": "database-query",
       "name": "Database Query",
       "description": "Query databases using SQL with AWS RDS Data API",
