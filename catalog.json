@@ -51,6 +51,16 @@
       "path": "tools/email-sender/tool.py",
       "configPath": "tools/email-sender/config.json",
       "version": "1.0.0"
+    },
+    {
+      "id": "web-crawler",
+      "name": "Web Crawler",
+      "description": "Crawl and extract content from websites using Crawl4AI",
+      "category": "information",
+      "icon": "🕷️",
+      "path": "tools/web-crawler/tool.py",
+      "configPath": "tools/web-crawler/config.json",
+      "version": "1.0.0"
     }
   ]
 }
